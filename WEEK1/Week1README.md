@@ -25,5 +25,5 @@ Python has the following built-in data types:
 - Strings are Arrays - `a = "Hello, World!" print(a[1]) output = H`
 
 ## String Methods
-![String methods1](string_methods_1.png)
-![string methods 2](string_methods_2.png)
+![String methods1](String_methods_1.png)
+![string methods 2](String_methods_2.png)

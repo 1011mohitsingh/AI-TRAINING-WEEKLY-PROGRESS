@@ -250,4 +250,12 @@ print("Global:", x)
 
 """
 
+""" 
+Topics that i had cleared with the help of w3 school and practised it but dont documenting in the repo. For the ref I can refer it again form there 
+# DECORATORS : *args and **kwargs, preserving the meta data using the __name__ and __doc__
+# LABMDA FUNCTIONS : syntax - lambda arguments : expression eg: x = lambda a, b, c : a + b + c  print(x(5, 6, 2))
+get to know about using lambda with map() which applies a function to every item in a middle, using filter() that creates a list of items for which a function returns true,  sorted() function that uses a lamba as a key for custom sorting.
+
+"""
+
 

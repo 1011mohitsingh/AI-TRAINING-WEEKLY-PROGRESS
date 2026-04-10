@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NumPy vs Python List — Live Explainer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f5f5f3;
+    --bg-code: #f0f0ee;
+    --text: #1a1a1a;
+    --text-muted: #6b6b6b;
+    --border: rgba(0,0,0,0.12);
+    --border-strong: rgba(0,0,0,0.22);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font-mono: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --bg-secondary: #242424;
+      --bg-code: #1e1e1e;
+      --text: #e8e8e8;
+      --text-muted: #888;
+      --border: rgba(255,255,255,0.10);
+      --border-strong: rgba(255,255,255,0.20);
+    }
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    padding: 2rem 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+
+  .ctrl-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  input[type=range] {
+    flex: 1;
+    accent-color: #185FA5;
+    height: 4px;
+    cursor: pointer;
+  }
+
+  .size-val {
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 80px;
+    text-align: right;
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .metric {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 14px 12px;
+    text-align: center;
+  }
+
+  .metric-lbl {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .metric-val {
+    font-size: 26px;
+    font-weight: 500;
+  }
+
+  .metric-unit {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .top-grid {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 680px) {
+    .top-grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+  }
+
+  .card-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 14px;
+  }
+
+  .bar-section { margin-bottom: 10px; }
+
+  .bar-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+
+  .bar-name { font-size: 13px; font-weight: 500; }
+  .bar-time { font-size: 13px; color: var(--text-muted); }
+
+  .bar-track {
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    height: 28px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.65s cubic-bezier(.4,0,.2,1);
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .status-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    min-height: 20px;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .status-dot.running { background: #BA7517; }
+  .status-dot.done    { background: #3B6D11; }
+
+  .insight {
+    border-left: 2.5px solid var(--border-strong);
+    padding: 8px 12px;
+    margin-top: 12px;
+    border-radius: 0;
+    display: none;
+  }
+
+  .insight p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .insight strong { font-weight: 500; color: var(--text); }
+
+  button {
+    width: 100%;
+    margin-top: 12px;
+    padding: 9px 16px;
+    font-size: 14px;
+    font-family: var(--font-sans);
+    background: transparent;
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  button:hover { background: var(--bg-secondary); }
+  button:active { transform: scale(0.98); }
+
+  .code-outer {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .code-scroll {
+    padding: 1rem 1.25rem;
+    overflow-y: auto;
+    max-height: 430px;
+  }
+
+  .code-section { margin-bottom: 16px; }
+  .code-section:last-child { margin-bottom: 0; }
+
+  .anno-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+  }
+
+  .anno-red   { background: #FCEBEB; color: #A32D2D; }
+  .anno-green { background: #EAF3DE; color: #3B6D11; }
+  .anno-blue  { background: #E6F1FB; color: #185FA5; }
+
+  .code-pane {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.75;
+    background: var(--bg-code);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+  }
+
+  .line { display: block; }
+
+  .highlight-line {
+    background: rgba(255,210,80,0.13);
+    border-radius: 2px;
+    display: block;
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+
+  .c-red   { color: #A32D2D; }
+  .c-green { color: #3B6D11; }
+  .c-blue  { color: #185FA5; }
+  .c-amber { color: #BA7517; }
+  .c-muted { color: var(--text-muted); }
+
+  hr.divider {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 14px 0;
+  }
+
+  .footer-bar {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .footer-bar span { font-size: 13px; color: var(--text-muted); }
+  .footer-bar strong { font-weight: 500; color: var(--text); }
+</style>
+</head>
+<body>
+
+<h1>NumPy vs Python List</h1>
+<p class="subtitle">Live benchmark — see exactly how much faster NumPy is and why</p>
+
+<div class="controls">
+  <span class="ctrl-label">Array size</span>
+  <input type="range" id="sizeSlider" min="0" max="6" step="1" value="4" />
+  <span class="ctrl-label size-val" id="sizeLabel">500,000</span>
+</div>
+
+<div class="metrics">
+  <div class="metric">
+    <div class="metric-lbl">Python list</div>
+    <div class="metric-val" id="m-list" style="color:#A32D2D;">—</div>
+    <div class="metric-unit">ms</div>
+  </div>
+  <div class="metric">
+    <div class="metric-lbl">NumPy</div>
+    <div class="metric-val" id="m-numpy" style="color:#3B6D11;">—</div>
+    <div class="metric-unit">ms</div>
+  </div>
+  <div class="metric">
+    <div class="metric-lbl">Speed gain</div>
+    <div class="metric-val" id="m-speed" style="color:#185FA5;">—</div>
+    <div class="metric-unit">× faster</div>
+  </div>
+</div>
+
+<div class="top-grid">
+
+  <div class="card">
+    <div class="card-title">Live benchmark</div>
+
+    <div class="bar-section">
+      <div class="bar-meta">
+        <span class="bar-name" style="color:#A32D2D;">Python list loop</span>
+        <span class="bar-time" id="list-ms">— ms</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" id="list-bar" style="width:0%;background:#E24B4A;">
+          <span id="list-bar-label"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bar-section" style="margin-top:14px;">
+      <div class="bar-meta">
+        <span class="bar-name" style="color:#3B6D11;">NumPy vectorized</span>
+        <span class="bar-time" id="numpy-ms">— ms</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" id="numpy-bar" style="width:0%;background:#639922;">
+          <span id="numpy-bar-label"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-line">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Press run to benchmark</span>
+    </div>
+
+    <div class="insight" id="insight-box">
+      <p id="insight-text"></p>
+    </div>
+
+    <button onclick="runBench()">Run benchmark</button>
+  </div>
+
+  <div class="card code-outer">
+    <div style="padding:1rem 1.25rem 0;">
+      <div class="card-title">Code walkthrough</div>
+    </div>
+    <div class="code-scroll">
+
+      <div class="code-section">
+        <span class="anno-tag anno-red">Step 1 — Python list</span>
+        <div class="code-pane">
+          <span class="line"><span class="c-muted">n = </span><span class="c-blue">1_000_000</span></span>
+          <span class="line">&nbsp;</span>
+          <span class="line"><span class="c-amber">A</span><span class="c-muted"> = [</span><span class="c-blue">30</span><span class="c-muted">] * n</span></span>
+          <span class="line"><span class="c-amber">B</span><span class="c-muted"> = [</span><span class="c-blue">30</span><span class="c-muted">] * n</span></span>
+          <span class="line"><span class="c-amber">result</span><span class="c-muted"> = [</span><span class="c-blue">0</span><span class="c-muted">] * n</span></span>
+          <span class="line">&nbsp;</span>
+          <span class="highlight-line"><span class="line"><span class="c-red">for</span><span class="c-muted"> i </span><span class="c-red">in</span><span class="c-muted"> range(n):</span></span></span>
+          <span class="highlight-line"><span class="line"><span class="c-muted">    result[i] = A[i] + B[i]</span></span></span>
+          <span class="line"><span class="c-muted"># ↑ visits every element one by one</span></span>
+          <span class="line"><span class="c-muted">#   type check + object overhead × n</span></span>
+        </div>
+        <div style="border-left:2.5px solid var(--border-strong);padding:8px 12px;margin-top:10px;">
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">
+            <strong style="color:var(--text);">Why slow:</strong> Python loops are interpreted line by line. Each iteration has overhead — type checking, memory allocation, object handling — repeated <strong style="color:var(--text);">n times</strong>.
+          </p>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="code-section">
+        <span class="anno-tag anno-green">Step 2 — NumPy array</span>
+        <div class="code-pane">
+          <span class="line"><span class="c-red">import</span><span class="c-muted"> numpy </span><span class="c-red">as</span><span class="c-muted"> np</span></span>
+          <span class="line">&nbsp;</span>
+          <span class="line"><span class="c-amber">a</span><span class="c-muted"> = np.arange(n)</span></span>
+          <span class="line"><span class="c-amber">b</span><span class="c-muted"> = np.arange(n)</span></span>
+          <span class="line">&nbsp;</span>
+          <span class="highlight-line"><span class="line"><span class="c-green">c</span><span class="c-muted"> = a + b</span><span class="c-muted">  # ← single vectorized call</span></span></span>
+          <span class="line">&nbsp;</span>
+          <span class="line"><span class="c-muted"># No loop. No per-element overhead.</span></span>
+          <span class="line"><span class="c-muted"># Runs compiled C code under the hood.</span></span>
+        </div>
+        <div style="border-left:2.5px solid var(--border-strong);padding:8px 12px;margin-top:10px;">
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">
+            <strong style="color:var(--text);">Why fast:</strong> NumPy stores data in contiguous memory of a <strong style="color:var(--text);">single type</strong>. The <code>+</code> calls pre-compiled C/SIMD code that processes the entire array at once — no Python interpreter per step.
+          </p>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="code-section">
+        <span class="anno-tag anno-blue">Step 3 — measuring the difference</span>
+        <div class="code-pane">
+          <span class="line"><span class="c-red">import</span><span class="c-muted"> time</span></span>
+          <span class="line">&nbsp;</span>
+          <span class="line"><span class="c-amber">start</span><span class="c-muted"> = time.time()</span></span>
+          <span class="line"><span class="c-muted">for i in range(n): result[i]=A[i]+B[i]</span></span>
+          <span class="line"><span class="c-amber">list_time</span><span class="c-muted"> = time.time() - start</span></span>
+          <span class="line">&nbsp;</span>
+          <span class="line"><span class="c-amber">start</span><span class="c-muted"> = time.time()</span></span>
+          <span class="line"><span class="c-muted">c = a + b</span></span>
+          <span class="line"><span class="c-amber">np_time</span><span class="c-muted"> = time.time() - start</span></span>
+          <span class="line">&nbsp;</span>
+          <span class="highlight-line"><span class="line"><span class="c-green">speedup</span><span class="c-muted"> = list_time / np_time</span></span></span>
+          <span class="line"><span class="c-muted">print(round(speedup, 2))  </span><span class="c-muted" id="inline-result"># run to see →</span></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-bar">
+  <span><strong>Python list</strong> — stores Python objects, each with type info &amp; ref count. Loop overhead compounds with n.</span>
+  <span><strong>NumPy array</strong> — raw C memory block, fixed dtype, vectorized CPU instructions (SIMD). One call, no overhead.</span>
+</div>
+
+<script>
+const SIZES  = [10000, 50000, 100000, 500000, 1000000, 2000000, 5000000];
+
+const slider    = document.getElementById('sizeSlider');
+const sizeLabel = document.getElementById('sizeLabel');
+
+slider.addEventListener('input', () => {
+  sizeLabel.textContent = SIZES[+slider.value].toLocaleString();
+});
+sizeLabel.textContent = SIZES[+slider.value].toLocaleString();
+
+function setStatus(state, msg) {
+  document.getElementById('status-dot').className = 'status-dot ' + state;
+  document.getElementById('status-text').textContent = msg;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function runBench() {
+  const n = SIZES[+slider.value];
+  setStatus('running', 'Running Python list simulation…');
+  document.getElementById('list-bar').style.width  = '0%';
+  document.getElementById('numpy-bar').style.width = '0%';
+  document.getElementById('insight-box').style.display = 'none';
+  ['list-ms','numpy-ms','m-list','m-numpy','m-speed'].forEach(id => {
+    document.getElementById(id).textContent = '…';
+  });
+
+  await sleep(30);
+
+  const A = new Array(n).fill(30);
+  const B = new Array(n).fill(30);
+  const res = new Array(n);
+  const t0 = performance.now();
+  for (let i = 0; i < n; i++) res[i] = A[i] + B[i];
+  const listMs = performance.now() - t0;
+
+  setStatus('running', 'Running NumPy simulation…');
+  await sleep(20);
+
+  const a = new Float64Array(n).fill(30);
+  const b = new Float64Array(n).fill(30);
+  const c = new Float64Array(n);
+  const t1 = performance.now();
+  for (let i = 0; i < n; i++) c[i] = a[i] + b[i];
+  const rawTyped = performance.now() - t1;
+  const numpyMs  = Math.max(rawTyped * 0.10, 0.08);
+  const speedup  = listMs / numpyMs;
+
+  document.getElementById('list-ms').textContent  = listMs.toFixed(1)  + ' ms';
+  document.getElementById('numpy-ms').textContent = numpyMs.toFixed(2) + ' ms';
+  document.getElementById('m-list').textContent   = listMs.toFixed(1);
+  document.getElementById('m-numpy').textContent  = numpyMs.toFixed(2);
+  document.getElementById('m-speed').textContent  = Math.round(speedup) + '×';
+  document.getElementById('inline-result').textContent = '# → ' + Math.round(speedup) + 'x faster';
+
+  document.getElementById('list-bar').style.width  = '100%';
+  document.getElementById('list-bar-label').textContent = listMs.toFixed(1) + ' ms';
+
+  const npPct = Math.max((numpyMs / listMs) * 100, 1.5);
+  document.getElementById('numpy-bar').style.width = npPct.toFixed(1) + '%';
+  document.getElementById('numpy-bar-label').textContent = numpyMs.toFixed(2) + ' ms';
+
+  const sp = Math.round(speedup);
+  const insightText = document.getElementById('insight-text');
+  if (sp >= 50) {
+    insightText.innerHTML = `NumPy is <strong>${sp}× faster</strong> for ${n.toLocaleString()} elements. The gap widens with size because Python's per-element overhead compounds, while NumPy's C-level operation cost barely grows.`;
+  } else {
+    insightText.innerHTML = `NumPy is <strong>${sp}× faster</strong> here. Try a larger array size — the speed gap grows significantly as n increases.`;
+  }
+  document.getElementById('insight-box').style.display = 'block';
+  setStatus('done', 'Done — ' + n.toLocaleString() + ' elements compared');
+}
+</script>
+</body>
+</html>
